@@ -1,0 +1,189 @@
+                The IR Language for Matbar
+                   Matbar 中间表示语言
+                        MIRL
+
+一、简介（Description）
+    MIRL 是一种专用于 Matbar 程序的低级语言。
+    MIL 语言是面向人类的、易读的语法形式，但是 Matbar 解释器并不
+能直接理解这种高度碎片化的语法，也难以进行语义检查。因此，用户输入
+的 MIL 语言在被词法解析器和语法解析器解析后，会通过 IRGenerator
+类生成 MIRL 字节码。
+
+二、架构（Architecture）
+    MIRL 假设它自己运行在一台虚拟机器上，直接与虚拟机器交互。因此
+MIRL 看起来很想汇编语言。但是 MIRL 比 x86 汇编简单得多，并且没有
+汇编的复杂限制。
+    MIRL 假设机器有无穷大的内存空间，不使用寄存器进行算术操作，所有
+的运算都是基于栈完成的。因此 MIRL 只需要反复地压栈弹栈就能完成运算操作。
+
+三、语法表现（Syntax）
+    MIRL 基本遵循汇编语言的语法。下面是 MIRL 的基本语法格式：
+        「尖括号表示需要按实际情况替换的内容，方括号内表示可选内容」
+        <Instruction> [<Data direction>][[<DATA TYPE>]] [<DATA>]
+        <指令> [<数据方向>][[<数据类型>]] [<数据>]
+    
+    「指令」是 MIRL 语句的基本构成，指令之后可以跟上可选的「数据」，
+有时也称指令的「参数」。「数据方向」标识数据是传入指令还是被指令写入，
+一般使用「<=」和「=>」两个符号进行标识，前者表示数据传入指令，后者表示
+指令写入数据。「数据类型」表明数据的基本类型，有「CONSTANT，VARIABLE，
+FUNCTION」三种类型，分别表示常数、变量以及函数。数据类型必须紧跟在数据
+方向标识符后方，并且必须使用方括号扩起来。
+
+    例如，下列指令将常数 3.14 压栈：
+        push <=[CONSTANT] 3.14
+
+四、指令片段
+    「指令片段」是一段为了实现同一个功能指令的集合。通常 DEF/DROP/POP
+三条指令只要任意出现一个就表示一个指令片段的结束。
+    指令片段通常有一个唯一与之对应的「执行上下文（Execution Context）」，
+即栈的状态。只要一段指令片段结束，执行上下文会丢弃（栈被清空）。
+
+五、指令集（Instruction Set）
+    「指令集」是 MIRL 所有可用指令的集合。MIRL 只有非常少的指令，其中算
+术指令只占很少的部分，主要是控制指令。
+    以下是全部的 MIRL 指令以及语法结构：
+
+    BAD
+        # 无效指令（空指令）
+        # Exception: 无论如何，该指令总是产生异常
+        # 一般用于手动产生一个异常以迫使 Matbar 进行异常处理
+    PUSH <=[CONSTANT] <number>
+        # 将常数压栈，可以是整数或浮点数，但是不能为负数（即不能有符号）
+        # 对于浮点数，只保证前 10 位是有效的
+    PUSH <=[VARIABLE] <variable identifier>
+        # 将变量压栈，本质上变量会先被解除引用，作为常数压栈
+        # 当目标表达式是函数定义时，会将变量地址压栈
+        # Exception: 当尝试引用未定义的变量时将抛出异常
+    POP =>[VARIABLE] <variable identifier>
+        # 将当前栈顶内容存储到变量中，然后弹栈
+        # 当尝试写入未定义的变量时，变量会被自动定义并赋值
+        # Exception: 可能抛出空栈异常
+    DROP
+        # 将当前栈顶内容弹栈，并输出到 stdout 标准输出中
+        # Exception: 可能抛出空栈异常
+    DEF =>[FUNCTION] <function identifier>
+        # 将前面的指令序列包装为一个函数并定义
+        # 有非法指令时会引发相应的异常
+    CALL <=[FUNCTION] <function identifier>
+        # 调用一个数学函数
+        # 栈顶的元素作为参数，调用完成后栈顶元素会被替换为函数的返回值
+        # Exception: 当调用不存在或未定义的函数会引发异常
+    ADD
+        # 将栈顶的两个元素作为操作数，相加然后将结果压栈
+        # 原先栈顶的两个元素会被弹栈
+    SUB
+        # 将栈顶的两个元素作为操作数，相减然后将结果压栈
+        # 原先栈顶的两个元素会被弹栈
+    MUL
+        # 将栈顶的两个元素作为操作数，相乘然后将结果压栈
+        # 原先栈顶的两个元素会被弹栈
+    DIV
+        # 将栈顶的两个元素作为操作数，相除然后将结果压栈
+        # 原先栈顶的两个元素会被弹栈
+    POW
+        # 将栈顶的两个元素作为操作数，乘方然后将结果压栈
+        # 原先栈顶的两个元素会被弹栈
+    NEG
+        # 将栈顶元素取相反数后压栈
+        # 原先栈顶的元素会被弹栈
+
+    以下是控制指令，所有的控制指令都有「C」前缀：
+    CQUIT
+        # quiet
+        # 退出程序
+    CEV
+        # Enumeration Variables
+        # 列出所有的变量
+    CEF
+        # Enumeration Function
+        # 列出所有的函数
+    CCLO
+        # Clear Optimizer Bit
+        # 禁止代码优化器优化代码
+    CSEO
+        # Set Optimizer Bit
+        # 允许代码优化器优化代码
+    CLDBGR <=[CONSTANT] <constant>
+        # Load Debugger Register
+        # 设置内置 debugger 的功能寄存器 DBGR
+    CDBG
+        # Debugger
+        # 调用 Debugger 功能，调用号保存在 DBUGR 寄存器中
+    CLEPTR <=[CONSTANT] <constant>
+        # Load Exception Register
+        # 设置 Exception 处理器的功能寄存器 EPTR
+    CEPT
+        # Exception
+        # 调用内置 Exception 处理器功能，调用号保存在 EPTR 寄存器中
+    
+五、指令集实例
+    1. 计算表达式 1+1 并输出结果到控制台
+        PUSH <=[CONSTANT] 1
+        PUSH <=[CONSTANT] 1
+        ADD
+        DROP
+    
+    2. 计算 4*x^2+8*x+4 并输出结果到控制台
+        PUSH <=[CONSTANT] 4
+        PUSH <=[VARIABLE] x
+        PUSH <=[CONSTANT] 2
+        POW
+        MUL
+        PUSH <=[CONSTANT] 8
+        PUSH <=[VARIABLE] x
+        MUL
+        ADD
+        PUSH <=[CONSTANT] 4
+        ADD
+        DROP
+
+    3. 计算 (x^3*cos(x/2)+1/2)*sqrt(4-x^2) 并赋值到变量 result
+       或写成 MIL 语法形式：result = (x^3*cos[x/2]+1/2)*sqrt[4-x^2]
+        PUSH <=[VARIABLE] x
+        PUSH <=[CONSTANT] 3
+        POW
+        PUSH <=[VARIABLE] x
+        PUSH <=[CONSTANT] 2
+        DIV
+        CALL <=[FUNCTION] cos
+        MUL
+        PUSH <=[CONSTANT] 1
+        PUSH <=[CONSTANT] 2
+        DIV
+        ADD
+        PUSH <=[CONSTANT] 4
+        PUSH <=[VARIABLE] x
+        PUSH <=[CONSTANT] 2
+        POW
+        SUB
+        CALL <=[FUNCTION] sqrt
+        MUL
+        POP =>[VARIABLE] result
+
+    4. 以 x 为自变量，定义函数 f(x)=2*x+1
+       或写成 MIL 语法：f[x]=2*x+1
+        PUSH <=[CONSTANT] 2
+        PUSH <=[VARIABLE] x
+        MUL
+        PUSH <=[CONSTANT] 1
+        ADD
+        DEF =>[FUNCTION] f[x]
+
+六、代码优化器（Optimizer）
+    代码优化器可以针对 MIRL 语言进行一定程度的代码优化。
+    此外，代码优化器也负责对变量解除引用，是 MIRL 处理的必须步骤。
+代码优化器的优化主要分为如下几个阶段：
+
+    1. 原始代码：此时的代码是由 MIL 经过语法解析直接生成的
+    2. 合法代码：Optimizer 生成指令片段引用表，然后逐个检查引用
+表中的内容。「引用（Reference）」是指一些非常量（或者说字面量）的
+数据字段。例如，指令「PUSH <=[VARIABLE] x」就是对 x 的一次引用。
+引用的「合法性」是指一个引用目标是否已经存在并且可达（Reachable）。
+「存在」指一个变量或者函数已经被定义，「可达」指变量的值可以被访问
+或者函数可以被调用。Optimizer 会检索引用表，逐个确认所有的引用都
+是「合法引用」。经过此操作检查后的代码称之为「合法代码」。
+    3. 静态代码：如果当前 MIL 语句不是函数定义的话，Optimizer
+将会把全部的变量引用都用相应的变量值进行替换。这一过程称之为「变量解
+引用」。由于此时的代码片段的运算结果和变量的具体值已经没有关系，
+所以称之为「静态代码」。
+    4. 

@@ -1,0 +1,41 @@
+IR_DIR = IR
+IRVM_DIR = IRVM
+COMPILER_DIR = compiler
+INCLUDE_DIR = include
+PARSER_DIR = parser
+COM_DIR = common
+JIT = $(COMPILER_DIR)/asmjit/build/libasmjit.a
+
+CXX = g++
+CXXFLAGS = -std=gnu++11 -Wall -O0 -I$(INCLUDE_DIR) \
+	-I$(COMPILER_DIR)/asmjit/src -I. \
+	-Wno-sign-compare -Wno-unused-function -Wno-deprecated -g
+CC=$(CXX)
+CFLAGS=$(CXXFLAGS)
+LDFLAGS = -L$(COMPILER_DIR)/asmjit/build -lreadline -lrt
+
+PARSER_SRC = $(PARSER_DIR)/y.tab.cc $(PARSER_DIR)/lex.yy.cc
+OBJS += $(PARSER_DIR)/y.tab.o $(PARSER_DIR)/lex.yy.o
+OBJS += $(IR_DIR)/IRGenerator.o $(IR_DIR)/RuntimePool.o $(IR_DIR)/VFManager.o
+OBJS += $(IRVM_DIR)/IRExecution.o $(COMPILER_DIR)/IRTranslator.o $(COMPILER_DIR)/IROptimizer.o
+OBJS += $(COM_DIR)/Main.o $(COM_DIR)/Throwable.o $(COM_DIR)/LineReader.o $(COM_DIR)/Controller.o
+OBJS += $(COM_DIR)/FunctionContext.o $(COM_DIR)/IRBasic.o $(COM_DIR)/Debugger.o
+OUT = matbar
+
+# all: $(OUT)
+all:
+	@echo "This Makefile was deprecated."
+	@echo "Using our new building system (CMake) to build this project please."
+	@echo "For more information: docs/Building.txt"
+	@echo "Note that you can still build parser module through using make."
+
+$(OUT): $(PARSER_SRC) $(OBJS)
+	$(CXX) $(LDFLAGS) $(OBJS) $(JIT) -o $(OUT)
+
+$(PARSER_SRC):
+	make -C $(PARSER_DIR) all
+
+
+clean:
+	rm $(OBJS)
+	rm $(PARSER_SRC)

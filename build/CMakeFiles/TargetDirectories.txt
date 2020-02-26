@@ -1,0 +1,14 @@
+/home/sora/Project/C/matbar/build/CMakeFiles/install/strip.dir
+/home/sora/Project/C/matbar/build/CMakeFiles/install/local.dir
+/home/sora/Project/C/matbar/build/CMakeFiles/edit_cache.dir
+/home/sora/Project/C/matbar/build/CMakeFiles/matbar.dir
+/home/sora/Project/C/matbar/build/CMakeFiles/rebuild_cache.dir
+/home/sora/Project/C/matbar/build/CMakeFiles/install.dir
+/home/sora/Project/C/matbar/build/CMakeFiles/list_install_components.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/install/strip.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/install/local.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/edit_cache.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/asmjit.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/rebuild_cache.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/list_install_components.dir
+/home/sora/Project/C/matbar/build/compiler/asmjit/CMakeFiles/install.dir
