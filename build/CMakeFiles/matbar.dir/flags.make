@@ -6,5 +6,5 @@ CXX_FLAGS =   -std=gnu++11
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/sora/Project/C/matbar/include -I/home/sora/Project/C/matbar/compiler/asmjit/src 
+CXX_INCLUDES = -I/home/sora/Project/C/MIL/MIL/include -I/home/sora/Project/C/MIL/MIL/compiler/asmjit/src 
 

@@ -1,4 +1,4 @@
-# Install script for directory: /home/sora/Project/C/matbar
+# Install script for directory: /home/sora/Project/C/MIL/MIL
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/sora/Project/C/matbar/build/compiler/asmjit/cmake_install.cmake")
+  include("/home/sora/Project/C/MIL/MIL/build/compiler/asmjit/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/sora/Project/C/matbar/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/sora/Project/C/MIL/MIL/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

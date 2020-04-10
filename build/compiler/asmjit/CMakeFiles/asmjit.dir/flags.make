@@ -6,5 +6,5 @@ CXX_FLAGS = -fPIC -fvisibility=hidden   -Wall -Wextra -fno-math-errno -fno-threa
 
 CXX_DEFINES = -Dasmjit_EXPORTS
 
-CXX_INCLUDES = -I/home/sora/Project/C/matbar/include -I/home/sora/Project/C/matbar/compiler/asmjit/src 
+CXX_INCLUDES = -I/home/sora/Project/C/MIL/MIL/include -I/home/sora/Project/C/MIL/MIL/compiler/asmjit/src 
 
